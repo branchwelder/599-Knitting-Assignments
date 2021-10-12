@@ -21,12 +21,14 @@ class Yarn:
         The id of the last loop on the yarn, none if no loops on the yarn
     """
 
-    def __init__(self, yarn_id: str, last_loop: Optional[Loop] = None):
+    def __init__(self, yarn_id: str, knit_graph, last_loop: Optional[Loop] = None):
         """
         A Graph structure to show the yarn-wise relationship between loops
+        :param knit_graph: THe knitgraph this yarn is used in
         :param yarn_id: the identifier for this loop
         :param last_loop: the loop to add onto this yarn at the beginning. May be none if yarn is empty.
         """
+        self.knit_graph = knit_graph
         self.yarn_graph: networkx.DiGraph = networkx.DiGraph()
         if last_loop is None:
             self.last_loop_id = None
@@ -47,7 +49,8 @@ class Yarn:
         Adds the loop at the end of the yarn
         :param is_twisted: The parameter used for twisting the loop if it is created in the method
         :param loop: The loop to be added at this id. If none, an non-twisted loop will be created
-        :param loop_id: the id of the new loop, if the loopId is none, it defaults to 1 more than last put on this yarn
+        :param loop_id: the id of the new loop, if the loopId is none,
+            it defaults to 1 more than last put on the knit Graph (CHANGE)
         :return: the loop_id added to the yarn, the loop added to the yarn
         """
         # If Loop Id is None generate a new id from provided loop or based on last id on this yarn
