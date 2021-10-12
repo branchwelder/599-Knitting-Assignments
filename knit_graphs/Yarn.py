@@ -50,14 +50,33 @@ class Yarn:
         :param loop_id: the id of the new loop, if the loopId is none, it defaults to 1 more than last put on this yarn
         :return: the loop_id added to the yarn, the loop added to the yarn
         """
-        # TODO: Implement
         # If Loop Id is None generate a new id from provided loop or based on last id on this yarn
         # If no loop is provided create one with loop id and twisted parameter
         # Add Loop Id as a node to the yarn_graph and add parameter keyed to it at "loop" to store the loop
         # Add an edge between this loop and the loop before it on the yarn
         # Update last_loop_id
         # Return the created loop's id and the loop
-        raise NotImplementedError
+
+        if loop_id is None:
+            if loop is not None:
+                loop_id = loop.loop_id()
+            elif self.last_loop_id is None:
+                loop_id = 0
+            else:
+                print("can't set loop id")
+
+        if loop is None:
+            loop = Loop(loop_id=loop_id, yarn_id=self.yarn_id, is_twisted=is_twisted)
+
+        self.yarn_graph.add_node(loop_id)
+        self.yarn_graph.nodes[loop_id]["loop"] = loop
+
+        if loop_id > 0:
+            self.yarn_graph.add_edge(loop_id, self.last_loop_id)
+
+        self.last_loop_id = loop_id
+
+        return(loop_id, loop)
 
     def __contains__(self, item: Union[int, Loop]) -> bool:
         """
