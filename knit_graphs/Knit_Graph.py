@@ -111,7 +111,7 @@ class Knit_Graph:
         current_course_id = 0
         
         # Iterate through the loops
-        for current_loop_id in range(self.last_loop_id):
+        for current_loop_id in range(self.last_loop_id + 1):
             # Check if there are any parent loops, if there are, then iterate through them
             for parent in self.loops[current_loop_id].parent_loops:
                 # If the parent loop is in the course below the current course, there is a course change
