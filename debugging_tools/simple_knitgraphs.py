@@ -1,5 +1,5 @@
 """A set of functions that generate simple knit-graph structures useful for debugging"""
-from knit_graphs.Knit_Graph import Knit_Graph
+from knit_graphs.Knit_Graph import Knit_Graph, Pull_Direction
 from knit_graphs.Yarn import Yarn
 
 
@@ -45,8 +45,49 @@ def rib(width: int = 4, height: int = 4, rib_width: int = 1) -> Knit_Graph:
     assert width > 0
     assert height > 0
     assert rib_width <= width
-    # Todo Implement
-    raise NotImplementedError
+
+    knit_graph = Knit_Graph()
+    yarn = Yarn("yarn", knit_graph)
+    knit_graph.add_yarn(yarn)
+
+    # make the first set of loops on the bottom (0th) course
+    first_course = []
+    for _ in range(0, width):
+        loop_id, loop = yarn.add_loop_to_end()
+        first_course.append(loop_id)
+        knit_graph.add_loop(loop)
+
+    # make new course of loops and connect them to the last course
+    prior_course = first_course
+    for _ in range(1, height):
+        # Very similar to stockinette, but we switch knits and purls.
+        knit = True
+        cols = 0
+        next_course = []
+        for parent_id in reversed(prior_course):
+            child_id, child = yarn.add_loop_to_end()
+            next_course.append(child_id)
+            knit_graph.add_loop(child)
+
+            if cols == rib_width:
+                # If column width has been satisfied, start next column
+                knit = not knit
+                cols = 0
+            if knit:
+                # If knit stitch, pull back to front.
+                knit_graph.connect_loops(
+                    parent_id, child_id, pull_direction=Pull_Direction.BtF
+                )
+            else:
+                # Else, pull front to back.
+                knit_graph.connect_loops(
+                    parent_id, child_id, pull_direction=Pull_Direction.FtB
+                )
+            cols += 1
+
+        prior_course = next_course
+
+    return knit_graph
 
 
 def seed(width: int = 4, height=4) -> Knit_Graph:
@@ -58,9 +99,46 @@ def seed(width: int = 4, height=4) -> Knit_Graph:
     """
     assert width > 0
     assert height > 0
-    # Todo Implement
-    raise NotImplementedError
 
+    knit_graph = Knit_Graph()
+    yarn = Yarn("yarn", knit_graph)
+    knit_graph.add_yarn(yarn)
+
+    # make the first set of loops on the bottom (0th) course
+    first_course = []
+    for _ in range(0, width):
+        loop_id, loop = yarn.add_loop_to_end()
+        first_course.append(loop_id)
+        knit_graph.add_loop(loop)
+
+    # make new course of loops and connect them to the last course
+    prior_course = first_course
+    for _ in range(1, height):
+        # Again, very similar to stockinette, but we just alternate knits and purls.
+        # I just toggle the knit boolean
+        next_course = []
+        knit = True
+        for parent_id in reversed(prior_course):
+            child_id, child = yarn.add_loop_to_end()
+            next_course.append(child_id)
+            knit_graph.add_loop(child)
+
+            if knit:
+                # If knit stitch, pull back to front.
+                knit_graph.connect_loops(
+                    parent_id, child_id, pull_direction=Pull_Direction.BtF
+                )
+                knit = not knit
+            else:
+                # Else (purl), pull front to back.
+                knit_graph.connect_loops(
+                    parent_id, child_id, pull_direction=Pull_Direction.FtB
+                )
+                knit = not knit
+
+        prior_course = next_course
+
+    return knit_graph
 
 def twisted_stripes(width: int = 4, height=5, left_twists: bool = True) -> Knit_Graph:
     """
@@ -70,7 +148,7 @@ def twisted_stripes(width: int = 4, height=5, left_twists: bool = True) -> Knit_
     :return: A knitgraph with repeating pattern of twisted stitches surrounded by knit wales
     """
     knitGraph = Knit_Graph()
-    yarn = Yarn("yarn", knit_graph)
+    yarn = Yarn("yarn", knitGraph)
     knitGraph.add_yarn(yarn)
 
     # Add the first course of loops
