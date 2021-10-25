@@ -56,3 +56,6 @@ This package contains the classes used to create a knit graph (Loop, Yarn, Knit_
 This package contains a visualizer method to help visualize simple knitgraphs. This may be useful to extend for debugging future projects
 It also contains a set of simple knitgraph which manually generate some simple textures. In future assignments we will make it easier to define more complex knit graphs. 2 of these textures need to be implemented for assignment 1
 
+## knitting_machine
+This package contains a representation of a v-bed knitting machine and 'KnitoutGenerator' class to create knitout 
+instructions by manipulting that machine-state. Knitout operations are in the machine_operations file.

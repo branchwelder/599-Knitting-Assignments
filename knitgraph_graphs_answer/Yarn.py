@@ -1,7 +1,7 @@
 """
 The Yarn Data Structure
 """
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 import networkx as networkx
 
@@ -59,42 +59,28 @@ class Yarn:
         Adds the loop at the end of the yarn
         :param is_twisted: The parameter used for twisting the loop if it is created in the method
         :param loop: The loop to be added at this id. If none, an non-twisted loop will be created
-        :param loop_id: the id of the new loop, if the loopId is none,
-            it defaults to 1 more than last put on the knit Graph (CHANGE)
+        :param loop_id: the id of the new loop, if the loopId is none, it defaults to 1 more than last loop in the graph
         :return: the loop_id added to the yarn, the loop added to the yarn
         """
-
-        # Conditional to determine the correct Loop ID
-        if loop_id is None:
-            if loop is not None:
-                loop_id = loop.loop_id()
-            elif self.last_loop_id is not None:
-                loop_id = self.last_loop_id + 1
-            else:
+        if loop_id is None:  # Create a new Loop ID
+            if loop is not None:  # get the loop id from the provided loop
+                assert self.last_loop_id > loop.loop_id, \
+                    f"Cannot add loop {loop.loop_id} after loop {self.last_loop_id}."
+                loop_id = loop.loop_id
+            elif self.last_loop_id is None:  # the first loop on the yarn
                 loop_id = 0
-
-        # Create loop with ID if there is no loop
-        if loop is None:
-            loop = Loop(
-                loop_id=loop_id,
-                yarn_id=self.yarn_id,
-                is_twisted=is_twisted,
-            )
-
-        # Add loop_id to the yarn_graph, attach loop
-        self.yarn_graph.add_node(loop_id)
-        self.yarn_graph.nodes[loop_id]["loop"] = loop
-
-        # Connect to prior loop
-        if loop_id > 0:
+            else:  # the next loop on this yarn
+                loop_id = self.knit_graph.last_loop_id + 1
+        if loop is None:  # create a loop from default information
+            loop = Loop(loop_id, self.yarn_id, is_twisted)
+        self.yarn_graph.add_node(loop_id, loop=loop)
+        if self.last_loop_id is not None:  # make a link between this and the last yarn
             self.yarn_graph.add_edge(self.last_loop_id, loop_id)
-
-        # Update last_loop_id
         self.last_loop_id = loop_id
+        self.knit_graph.last_loop_id = loop_id
+        return loop_id, loop
 
-        return (loop_id, loop)
-
-    def __contains__(self, item: Union[int, Loop]) -> bool:
+    def __contains__(self, item):
         """
         :param item: the loop being checked for in the yarn
         :return: true if the loop_id of item or the loop is in the yarn
@@ -103,6 +89,8 @@ class Yarn:
             return self.yarn_graph.has_node(item)
         elif isinstance(item, Loop):
             return self.yarn_graph.has_node(item.loop_id)
+        else:
+            return False
 
     def __getitem__(self, item: int) -> Loop:
         """
