@@ -32,7 +32,7 @@ def test_cable():
 
 def test_lace():
     pattern = r"""
-        all rs rows k, k2tog, yo 2, sk2po, yo 2, skpo, k. 
+        all rs rows k, k2tog, yo 2, sk2po, yo 2, skpo, k.
         all ws rows p 2, k, p 3, k, p 2.
     """
     compiler = Knitspeak_Compiler()
@@ -50,7 +50,7 @@ def test_write_slipped_rib():
 
 if __name__ == "__main__":
     test_stst()
-    test_rib()
-    test_write_slipped_rib()
-    test_cable()
-    test_lace()
+    # test_rib()
+    # test_write_slipped_rib()
+    # test_cable()
+    # test_lace()

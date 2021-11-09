@@ -14,8 +14,8 @@ class Symbol_Table:
     def __init__(self):
         self._symbol_table: Dict[str, Union[Cable_Definition, Stitch_Definition, int]] = {"k": self._knit(), "p": self._purl(),
                                                                                           "yo": self._yo(), "slip": self._slip()}
-        self._decreases()
-        self._cables()
+        # self._decreases()
+        # self._cables()
         # set current row variable
         self._symbol_table["current_row"] = 0
 
@@ -39,22 +39,23 @@ class Symbol_Table:
     @staticmethod
     def _slip() -> Stitch_Definition:
         # Todo: Return (in one line) a Stitch Definition with no child_loops
-        raise NotImplementedError
+        return Stitch_Definition(pull_direction=Pull_Direction.BtF, cabling_depth=0, offset_to_parent_loops=None, child_loops=0)
 
     @staticmethod
     def _yo() -> Stitch_Definition:
         # Todo: Return (in one line) will create a new loop with no parents
-        raise NotImplementedError
+        return Stitch_Definition(pull_direction=Pull_Direction.BtF, cabling_depth=0, offset_to_parent_loops=[], child_loops=1)
 
     @staticmethod
     def _purl() -> Stitch_Definition:
         # Todo: Return (in one line) a Stitch Definition that will purl the next available loop
-        raise NotImplementedError
+        return Stitch_Definition(pull_direction=Pull_Direction.FtB, cabling_depth=0, offset_to_parent_loops=None, child_loops=1)
 
     @staticmethod
     def _knit() -> Stitch_Definition:
         # Todo: Return (in one line) a Stitch Definition that will knit the next available loop
-        raise NotImplementedError
+        return Stitch_Definition(pull_direction=Pull_Direction.BtF, cabling_depth=0, offset_to_parent_loops=None, child_loops=1)
+
 
     def __contains__(self, item: str):
         return item.lower() in self._symbol_table

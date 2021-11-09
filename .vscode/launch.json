@@ -5,7 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            "name": "knitspeak compiler",
+            "type": "python",
+            "request": "launch",
+            "module": "tests.test_knitspeak_compiler"
+        },
+        {
+            "name": "knitgraphs",
             "type": "python",
             "request": "launch",
             "module": "tests.test_simple_knitgraphs"
