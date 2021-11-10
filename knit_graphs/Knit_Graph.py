@@ -6,6 +6,7 @@ import networkx
 
 from knit_graphs.Loop import Loop
 from knit_graphs.Yarn import Yarn
+from knitting_machine.Machine_State import Yarn_Carrier
 
 
 class Pull_Direction(Enum):
@@ -53,13 +54,14 @@ class Knit_Graph:
         # Create new node in the graph, attach the loop
         self.graph.add_node(loop.loop_id, loop=loop)
 
+        assert loop.yarn_id in self.yarns, f"No yarn {loop.yarn_id} in this graph"
+
         # If this loop is not on its specified yarn add it to the end of the yarn
-        if loop.loop_id != self.yarns[loop.yarn_id].last_loop_id:
-            self.yarns[loop.yarn_id].add_loop_to_end(loop.loop_id, loop)
+        if loop not in self.yarns[loop.yarn_id]:
+            self.yarns[loop.yarn_id].add_loop_to_end(loop_id=None, loop=loop)
 
         # Add the loop to the loops dictionary and update last_loop_id
         self.loops[loop.loop_id] = loop
-        self.last_loop_id = loop.loop_id
 
 
     def add_yarn(self, yarn: Yarn):
@@ -80,18 +82,22 @@ class Knit_Graph:
         :param pull_direction: the direction the child is pulled through the parent
         :param stack_position: The position to insert the parent into, by default add on top of the stack
         """
+        assert parent_loop_id in self, f"parent loop {parent_loop_id} is not in this graph"
+        assert child_loop_id in self, f"child loop {child_loop_id} is not in this graph"
 
         # Connect parent loop to child loop with appropriate attributes
         self.graph.add_edge(
-            child_loop_id,
             parent_loop_id,
+            child_loop_id,
             pull_direction=pull_direction,
             depth=depth,
             parent_offset=parent_offset,
         )
 
+        child_loop = self[child_loop_id]
+        parent_loop = self[parent_loop_id]
         # Add the parent loop to the child's parent loop stack
-        self.loops[child_loop_id].add_parent_loop(self.loops[parent_loop_id], stack_position)
+        child_loop.add_parent_loop(parent_loop, stack_position)
 
 
     def get_courses(self) -> Tuple[Dict[int, float], Dict[float, List[int]]]:
@@ -109,7 +115,7 @@ class Knit_Graph:
         loop_ids_to_course = {}
         course_to_loop_ids = {0: []}
         current_course_id = 0
-        
+
         # Iterate through the loops
         for current_loop_id in range(self.last_loop_id + 1):
             # Check if there are any parent loops, if there are, then iterate through them
@@ -124,6 +130,12 @@ class Knit_Graph:
             course_to_loop_ids[current_course_id].append(current_loop_id)
 
         return(loop_ids_to_course, course_to_loop_ids)
+
+    def get_carriers(self) -> List[Yarn_Carrier]:
+        """
+        :return: A list of yarn carriers that hold the yarns involved in this graph
+        """
+        return [yarn.carrier for yarn in self.yarns.values()]
 
     def __contains__(self, item: Union[int, Loop]) -> bool:
         """

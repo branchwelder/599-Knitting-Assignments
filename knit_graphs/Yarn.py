@@ -67,7 +67,7 @@ class Yarn:
         # Conditional to determine the correct Loop ID
         if loop_id is None:
             if loop is not None:
-                loop_id = loop.loop_id()
+                loop_id = loop.loop_id
             elif self.last_loop_id is not None:
                 loop_id = self.last_loop_id + 1
             else:
@@ -82,16 +82,16 @@ class Yarn:
             )
 
         # Add loop_id to the yarn_graph, attach loop
-        self.yarn_graph.add_node(loop_id)
-        self.yarn_graph.nodes[loop_id]["loop"] = loop
+        self.yarn_graph.add_node(loop_id, loop=loop)
 
-        # Connect to prior loop
-        if loop_id > 0:
+        if self.last_loop_id is not None:
             self.yarn_graph.add_edge(self.last_loop_id, loop_id)
+
+        self.yarn_graph.nodes[loop_id]["loop"] = loop
 
         # Update last_loop_id
         self.last_loop_id = loop_id
-
+        self.knit_graph.last_loop_id = loop_id
         return (loop_id, loop)
 
     def __contains__(self, item: Union[int, Loop]) -> bool:

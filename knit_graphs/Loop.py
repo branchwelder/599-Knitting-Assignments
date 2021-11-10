@@ -15,7 +15,6 @@ class Loop:
         The list of loops that this loop is pulled through.
         The order in the list implies the stacking order with the first loop at the bottom the stack
     """
-
     def __init__(self, loop_id: int, yarn_id: str, is_twisted: bool = False):
         """
         :param loop_id: id of loop. IDs should represent the order that loops are created
@@ -36,9 +35,8 @@ class Loop:
         :param parent: the Loop to be added onto the stack
         :param stack_position: The position to insert the parent into, if None add on top of the stack
         """
-
         if not stack_position:
-            self.parent_loops.insert(0, parent)
+            self.parent_loops.append(parent)
         else:
             self.parent_loops.insert(stack_position, parent)
 

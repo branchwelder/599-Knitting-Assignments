@@ -187,6 +187,7 @@ class Knitspeak_Compiler:
             stitch_def = stitch_def.copy_and_flip()
         course_index = len(self.cur_course_loop_ids)
         prior_course_index = (len(self.last_course_loop_ids) - 1) - course_index
+
         if stitch_def.child_loops == 1:
             # Todo: Implement processing the stitch into the knitgraph
             #  add a new loop to the end of  self.yarn and add it to the self.knitgraph
