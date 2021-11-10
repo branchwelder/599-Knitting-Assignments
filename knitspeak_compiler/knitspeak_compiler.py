@@ -189,7 +189,6 @@ class Knitspeak_Compiler:
         prior_course_index = (len(self.last_course_loop_ids) - 1) - course_index
 
         if stitch_def.child_loops == 1:
-            # Todo: Implement processing the stitch into the knitgraph
             #  add a new loop to the end of  self.yarn and add it to the self.knitgraph
             loop_id, loop = self.yarn.add_loop_to_end()
             self.knit_graph.add_loop(loop)
@@ -197,14 +196,20 @@ class Knitspeak_Compiler:
             #  iterate over the stitch's parent offsets in their stack order
             for offset in stitch_def.offset_to_parent_loops:
                 #   the index of the parent_loop in self.last_course_loop_ids will be the prior_course_index plus the offset
-                parent_loop_index = prior_course_index + offset
-                parent_loop = self.last_course_loop_ids[parent_loop_index]
+                parent_loop_id = self.last_course_loop_ids[prior_course_index + offset]
                 #   mark the parent_loop as "consumed" by putting it in the loop_ids_consumed_by_current_course set
-                self.loop_ids_consumed_by_current_course.add(parent_loop)
+                self.loop_ids_consumed_by_current_course.add(parent_loop_id)
                 #   then connect that parent loop to the new child_loop given the stitch information in the stitch_def
-                loop.add_parent_loop(self.knit_graph.loops[parent_loop], stack_position=offset) # what about the stack position?
+                self.knit_graph.connect_loops(
+                    parent_loop_id=parent_loop_id,
+                    child_loop_id=loop_id,
+                    pull_direction=stitch_def.pull_direction,
+                    # stack_position=stitch_def.,
+                    depth=stitch_def.cabling_depth,
+                    parent_offset=offset)
                 #  add the newly created loop to the end of self.cur_course_loop_ids
-                self.cur_course_loop_ids.append(loop_id) # idk if this is right
+                self.cur_course_loop_ids.append(loop_id)
+
         else:  # slip statement
             assert len(stitch_def.offset_to_parent_loops) == 1, "Cannot slip multiple loops"
             for stack_position, parent_offset in enumerate(stitch_def.offset_to_parent_loops):

@@ -53,7 +53,6 @@ class Symbol_Table:
 
     @staticmethod
     def _knit() -> Stitch_Definition:
-        # Todo: Return (in one line) a Stitch Definition that will knit the next available loop
         return Stitch_Definition(pull_direction=Pull_Direction.BtF, cabling_depth=0, offset_to_parent_loops=None, child_loops=1)
 
 
