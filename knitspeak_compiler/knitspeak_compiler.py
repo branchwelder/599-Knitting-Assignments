@@ -204,11 +204,10 @@ class Knitspeak_Compiler:
                     parent_loop_id=parent_loop_id,
                     child_loop_id=loop_id,
                     pull_direction=stitch_def.pull_direction,
-                    # stack_position=stitch_def.,
                     depth=stitch_def.cabling_depth,
                     parent_offset=offset)
                 #  add the newly created loop to the end of self.cur_course_loop_ids
-                self.cur_course_loop_ids.append(loop_id)
+            self.cur_course_loop_ids.append(loop_id)
 
         else:  # slip statement
             assert len(stitch_def.offset_to_parent_loops) == 1, "Cannot slip multiple loops"
